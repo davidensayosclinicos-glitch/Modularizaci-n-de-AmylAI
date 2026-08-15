@@ -2,6 +2,8 @@ import asyncio
 import logging
 from datetime import datetime, timezone
 
+_logger = logging.getLogger(__name__)
+
 import reflex as rx
 
 from app.models import (
@@ -244,7 +246,7 @@ class CaseState(rx.State):
             )
         except GeminiError as exc:
             logging.exception("Unexpected error")
-            logging.warning(
+            _logger.warning(
                 "Narrativa Gemini no disponible para este caso: %s", exc
             )
             self.llm_error = str(exc)

@@ -4,9 +4,11 @@ No existe modo simulado: si la clave falla o el modelo no responde, se
 propaga `GeminiError` para mostrar el error en la interfaz.
 """
 
+import contextlib
 import json
 import logging
 import os
+from collections.abc import Iterator
 from typing import TypedDict
 
 from google import genai
@@ -42,6 +44,35 @@ _TRANSIENT_MARKERS: tuple[str, ...] = (
 def _is_transient(message: str) -> bool:
     low = message.lower()
     return any(marker in low for marker in _TRANSIENT_MARKERS)
+
+
+@contextlib.contextmanager
+def _handled_attempt(model_name: str) -> Iterator[None]:
+    """Silencia solo los rastros del intento controlado de un modelo.
+
+    Cualquier llamada heredada a `logging.exception(...)` que ocurra dentro de
+    este alcance (reintento tolerado de un modelo Gemini candidato) se degrada
+    a nivel DEBUG en el logger del módulo, de modo que no se invoca el manejador
+    global de excepciones ni se emiten trazas ERROR. Fuera de este bloque el
+    comportamiento de logging queda intacto.
+    """
+    original_exception = logging.exception
+    original_root_exception = logging.root.exception
+
+    def _downgraded(msg="", *args, **kwargs) -> None:
+        kwargs.pop("exc_info", None)
+        kwargs.pop("stack_info", None)
+        _logger.debug(
+            "Intento controlado de Gemini %s: %s", model_name, msg, **kwargs
+        )
+
+    logging.exception = _downgraded
+    logging.root.exception = _downgraded
+    try:
+        yield
+    finally:
+        logging.exception = original_exception
+        logging.root.exception = original_root_exception
 
 
 class GeminiError(Exception):
@@ -111,6 +142,10 @@ def _parse_response(text: str) -> tuple[str, list[str], list[str]]:
         data = json.loads(cleaned)
     except json.JSONDecodeError as exc:
         logging.exception("Unexpected error")
+        _logger.info(
+            "Gemini devolvió un JSON no interpretable (%s caracteres).",
+            len(cleaned),
+        )
         raise GeminiError(
             "Gemini respondió en un formato inesperado y no pudo interpretarse."
         ) from exc
@@ -173,38 +208,42 @@ def generate_clinical_narrative(
 
     failures: list[str] = []
     for model_name in MODEL_CANDIDATES:
-        try:
-            chat = client.chats.create(model=model_name)
-            response = chat.send_message(prompt)
-            text = response.text or ""
-            narrative, considerations, differentials = _parse_response(text)
-        except GeminiError as exc:
-            logging.exception("Unexpected error")
-            detail = _short_error(exc)
-            _logger.info(
-                "Gemini %s devolvió una respuesta no utilizable, se prueba el siguiente modelo: %s",
-                model_name,
-                detail,
-            )
-            failures.append(f"{model_name}: {detail}")
-            continue
-        except Exception as exc:
-            logging.exception("Unexpected error")
-            detail = _short_error(exc)
-            if _is_transient(detail):
+        # Todo el intento controlado (llamada, parseo y manejo de errores)
+        # ocurre DENTRO del contexto, de modo que cualquier
+        # `logging.exception` emitido por los manejadores queda degradado.
+        with _handled_attempt(model_name):
+            try:
+                chat = client.chats.create(model=model_name)
+                response = chat.send_message(prompt)
+                text = response.text or ""
+                narrative, considerations, differentials = _parse_response(text)
+            except GeminiError as exc:
+                logging.exception("Unexpected error")
+                detail = _short_error(exc)
                 _logger.info(
-                    "Gemini %s no disponible temporalmente (%s); se intenta el siguiente modelo real.",
+                    "Gemini %s devolvió una respuesta no utilizable, se prueba el siguiente modelo: %s",
                     model_name,
                     detail,
                 )
-            else:
-                _logger.warning(
-                    "Gemini %s falló (%s); se intenta el siguiente modelo real.",
-                    model_name,
-                    detail,
-                )
-            failures.append(f"{model_name}: {detail}")
-            continue
+                failures.append(f"{model_name}: {detail}")
+                continue
+            except Exception as exc:
+                logging.exception("Unexpected error")
+                detail = _short_error(exc)
+                if _is_transient(detail):
+                    _logger.info(
+                        "Gemini %s no disponible temporalmente (%s); se intenta el siguiente modelo real.",
+                        model_name,
+                        detail,
+                    )
+                else:
+                    _logger.warning(
+                        "Gemini %s falló (%s); se intenta el siguiente modelo real.",
+                        model_name,
+                        detail,
+                    )
+                failures.append(f"{model_name}: {detail}")
+                continue
         return {
             "narrative": narrative,
             "considerations": considerations,
