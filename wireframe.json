@@ -16,7 +16,7 @@
       },
       "blocks": [
         {
-          "id": "nav_individual",
+          "id": "nav-individual",
           "type": "sidebar",
           "label": "Navegación AmylAI",
           "hint": "Accesos a Individual, Diagnóstico, Lotes, Base de datos, Guía y Estrés",
@@ -31,7 +31,7 @@
           "type_source": "palette"
         },
         {
-          "id": "individual_form",
+          "id": "individual-form",
           "type": "form",
           "label": "Formulario clínico individual",
           "hint": "Entrada estructurada de variables clínicas, biomarcadores y carga de PDF",
@@ -46,7 +46,7 @@
           "type_source": "palette"
         },
         {
-          "id": "redflags_panel",
+          "id": "redflags-panel",
           "type": "card",
           "label": "Panel de señales de alerta",
           "hint": "Red flags detectadas y severidad clínica",
@@ -61,7 +61,7 @@
           "type_source": "palette"
         },
         {
-          "id": "risk_diagram",
+          "id": "risk-diagram",
           "type": "card",
           "label": "Diagrama de riesgo",
           "hint": "Resumen visual del razonamiento experto y score combinado",
@@ -76,7 +76,7 @@
           "type_source": "palette"
         },
         {
-          "id": "narrative_panel",
+          "id": "narrative-panel",
           "type": "text",
           "label": "Narrativa clínica",
           "hint": "Explicación generada por reglas/LLM con advertencia médica",
@@ -103,7 +103,7 @@
       },
       "blocks": [
         {
-          "id": "nav_diagnosis",
+          "id": "nav-diagnosis",
           "type": "sidebar",
           "label": "Navegación AmylAI",
           "hint": "Accesos a Individual, Diagnóstico, Lotes, Base de datos, Guía y Estrés",
@@ -118,7 +118,7 @@
           "type_source": "palette"
         },
         {
-          "id": "diagnosis_result",
+          "id": "diagnosis-result",
           "type": "card",
           "label": "Resultado principal",
           "hint": "Clasificación, nivel de confianza y recomendación de siguiente paso",
@@ -133,7 +133,7 @@
           "type_source": "palette"
         },
         {
-          "id": "evidence_panel",
+          "id": "evidence-panel",
           "type": "card",
           "label": "Evidencia clínica",
           "hint": "Variables que apoyan o contradicen el resultado",
@@ -148,7 +148,7 @@
           "type_source": "palette"
         },
         {
-          "id": "model_breakdown",
+          "id": "model-breakdown",
           "type": "table",
           "label": "Detalle de reglas y modelo",
           "hint": "Aportes de algoritmo experto, heurística y ensamble ML",
@@ -163,7 +163,7 @@
           "type_source": "palette"
         },
         {
-          "id": "case_actions",
+          "id": "case-actions",
           "type": "form",
           "label": "Acciones del caso",
           "hint": "Guardar, exportar, añadir nota clínica o volver a evaluar",
@@ -190,7 +190,7 @@
       },
       "blocks": [
         {
-          "id": "nav_batch",
+          "id": "nav-batch",
           "type": "sidebar",
           "label": "Navegación AmylAI",
           "hint": "Accesos a Individual, Diagnóstico, Lotes, Base de datos, Guía y Estrés",
@@ -205,7 +205,7 @@
           "type_source": "palette"
         },
         {
-          "id": "batch_upload",
+          "id": "batch-upload",
           "type": "form",
           "label": "Carga de archivos",
           "hint": "Importación CSV/PDF y parámetros del análisis por lotes",
@@ -220,7 +220,7 @@
           "type_source": "palette"
         },
         {
-          "id": "batch_status",
+          "id": "batch-status",
           "type": "card",
           "label": "Estado de procesamiento",
           "hint": "Progreso, errores y registros válidos detectados",
@@ -235,7 +235,7 @@
           "type_source": "palette"
         },
         {
-          "id": "batch_results",
+          "id": "batch-results",
           "type": "table",
           "label": "Resultados del lote",
           "hint": "Listado de pacientes/casos con riesgo, alertas y acciones",
@@ -262,7 +262,7 @@
       },
       "blocks": [
         {
-          "id": "nav_database",
+          "id": "nav-database",
           "type": "sidebar",
           "label": "Navegación AmylAI",
           "hint": "Accesos a Individual, Diagnóstico, Lotes, Base de datos, Guía y Estrés",
@@ -277,7 +277,7 @@
           "type_source": "palette"
         },
         {
-          "id": "database_filters",
+          "id": "database-filters",
           "type": "form",
           "label": "Búsqueda y filtros",
           "hint": "Filtrar por fecha, riesgo, origen, alerta y estado",
@@ -292,7 +292,7 @@
           "type_source": "palette"
         },
         {
-          "id": "database_table",
+          "id": "database-table",
           "type": "table",
           "label": "Registros guardados",
           "hint": "Casos clínicos, importaciones y resultados persistidos",
@@ -307,7 +307,7 @@
           "type_source": "palette"
         },
         {
-          "id": "record_detail",
+          "id": "record-detail",
           "type": "card",
           "label": "Detalle seleccionado",
           "hint": "Resumen del caso, narrativa, trazabilidad y acciones",
@@ -334,7 +334,7 @@
       },
       "blocks": [
         {
-          "id": "nav_guide",
+          "id": "nav-guide",
           "type": "sidebar",
           "label": "Navegación AmylAI",
           "hint": "Accesos a Individual, Diagnóstico, Lotes, Base de datos, Guía y Estrés",
@@ -349,7 +349,7 @@
           "type_source": "palette"
         },
         {
-          "id": "guide_index",
+          "id": "guide-index",
           "type": "text",
           "label": "Índice clínico",
           "hint": "Secciones sobre sospecha, red flags, interpretación y límites",
@@ -364,7 +364,7 @@
           "type_source": "palette"
         },
         {
-          "id": "guide_content",
+          "id": "guide-content",
           "type": "text",
           "label": "Contenido de guía",
           "hint": "Explicaciones clínicas navegables y criterios de uso",
@@ -391,7 +391,7 @@
       },
       "blocks": [
         {
-          "id": "nav_stress",
+          "id": "nav-stress",
           "type": "sidebar",
           "label": "Navegación AmylAI",
           "hint": "Accesos a Individual, Diagnóstico, Lotes, Base de datos, Guía y Estrés",
@@ -406,7 +406,7 @@
           "type_source": "palette"
         },
         {
-          "id": "stress_config",
+          "id": "stress-config",
           "type": "form",
           "label": "Configuración de escenarios",
           "hint": "Generación sintética y parámetros de validación",
@@ -421,7 +421,7 @@
           "type_source": "palette"
         },
         {
-          "id": "validation_metrics",
+          "id": "validation-metrics",
           "type": "chart_bar",
           "label": "Métricas de rendimiento",
           "hint": "Barras visibles de sensibilidad, especificidad y precisión",
@@ -436,7 +436,7 @@
           "type_source": "palette"
         },
         {
-          "id": "scenario_results",
+          "id": "scenario-results",
           "type": "table",
           "label": "Resultados por escenario",
           "hint": "Casos sintéticos, predicción y discrepancias",

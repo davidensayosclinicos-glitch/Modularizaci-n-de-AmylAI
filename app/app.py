@@ -2,14 +2,14 @@ import reflex as rx
 
 from app.components.clinical_shell import clinical_shell
 from app.components.dashboard import dashboard_overview
-from app.pages.clinical_pages import (
-    batches_page,
-    database_page,
-    diagnosis_page,
-    guide_page,
-    individual_page,
-    stress_page,
-)
+from app.pages.batches import batches_page
+from app.pages.database import database_page
+from app.pages.diagnosis import diagnosis_page
+from app.pages.individual import individual_page
+from app.pages.guide import guide_page
+from app.pages.stress import stress_page
+from app.states.database_state import DatabaseState
+from app.states.stress_state import StressState
 
 
 def index() -> rx.Component:
@@ -39,6 +39,6 @@ app.add_page(index, route="/")
 app.add_page(individual_page, route="/individual")
 app.add_page(diagnosis_page, route="/diagnosis")
 app.add_page(batches_page, route="/batches")
-app.add_page(database_page, route="/database")
+app.add_page(database_page, route="/database", on_load=DatabaseState.load_data)
 app.add_page(guide_page, route="/guide")
-app.add_page(stress_page, route="/stress")
+app.add_page(stress_page, route="/stress", on_load=StressState.run_suite)
