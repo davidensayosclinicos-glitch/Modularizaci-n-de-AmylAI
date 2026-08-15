@@ -243,7 +243,10 @@ class CaseState(rx.State):
                 result["confidence"],
             )
         except GeminiError as exc:
-            logging.exception(f"Error: {exc}")
+            logging.exception("Unexpected error")
+            logging.warning(
+                "Narrativa Gemini no disponible para este caso: %s", exc
+            )
             self.llm_error = str(exc)
             self.llm_ok = False
             self.is_analyzing = False

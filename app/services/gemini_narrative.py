@@ -24,6 +24,25 @@ MODEL_CANDIDATES: list[str] = [
 
 MODEL_NAME = MODEL_CANDIDATES[0]
 
+_logger = logging.getLogger(__name__)
+
+# Fallos transitorios típicos que justifican reintentar con otro modelo real.
+_TRANSIENT_MARKERS: tuple[str, ...] = (
+    "503",
+    "429",
+    "500",
+    "unavailable",
+    "overloaded",
+    "resource_exhausted",
+    "deadline",
+    "timeout",
+)
+
+
+def _is_transient(message: str) -> bool:
+    low = message.lower()
+    return any(marker in low for marker in _TRANSIENT_MARKERS)
+
 
 class GeminiError(Exception):
     pass
@@ -91,7 +110,7 @@ def _parse_response(text: str) -> tuple[str, list[str], list[str]]:
     try:
         data = json.loads(cleaned)
     except json.JSONDecodeError as exc:
-        logging.exception(f"Error: {exc}")
+        logging.exception("Unexpected error")
         raise GeminiError(
             "Gemini respondió en un formato inesperado y no pudo interpretarse."
         ) from exc
@@ -143,7 +162,11 @@ def generate_clinical_narrative(
     try:
         client = genai.Client(api_key=api_key)
     except Exception as exc:
-        logging.exception(f"Error: {exc}")
+        logging.exception("Unexpected error")
+        _logger.warning(
+            "No se pudo inicializar el cliente de Gemini: %s",
+            _short_error(exc),
+        )
         raise GeminiError(
             f"No se pudo inicializar el cliente de Gemini: {exc}"
         ) from exc
@@ -156,12 +179,31 @@ def generate_clinical_narrative(
             text = response.text or ""
             narrative, considerations, differentials = _parse_response(text)
         except GeminiError as exc:
-            logging.exception(f"Error: {exc}")
-            failures.append(f"{model_name}: {exc}")
+            logging.exception("Unexpected error")
+            detail = _short_error(exc)
+            _logger.info(
+                "Gemini %s devolvió una respuesta no utilizable, se prueba el siguiente modelo: %s",
+                model_name,
+                detail,
+            )
+            failures.append(f"{model_name}: {detail}")
             continue
         except Exception as exc:
-            logging.exception(f"Error: {exc}")
-            failures.append(f"{model_name}: {_short_error(exc)}")
+            logging.exception("Unexpected error")
+            detail = _short_error(exc)
+            if _is_transient(detail):
+                _logger.info(
+                    "Gemini %s no disponible temporalmente (%s); se intenta el siguiente modelo real.",
+                    model_name,
+                    detail,
+                )
+            else:
+                _logger.warning(
+                    "Gemini %s falló (%s); se intenta el siguiente modelo real.",
+                    model_name,
+                    detail,
+                )
+            failures.append(f"{model_name}: {detail}")
             continue
         return {
             "narrative": narrative,
@@ -171,6 +213,11 @@ def generate_clinical_narrative(
         }
 
     detail = " | ".join(failures) if failures else "sin detalle disponible"
+    _logger.warning(
+        "Todos los modelos Gemini (%d) fallaron: %s",
+        len(MODEL_CANDIDATES),
+        detail,
+    )
     raise GeminiError(
         "Ningún modelo Gemini disponible respondió correctamente "
         f"({len(MODEL_CANDIDATES)} intentos). Detalle: {detail}"
