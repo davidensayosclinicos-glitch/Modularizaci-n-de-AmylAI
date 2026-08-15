@@ -1,29 +1,22 @@
 import reflex as rx
 
+from app.components.clinical_shell import clinical_shell
+from app.components.dashboard import dashboard_overview
+from app.pages.clinical_pages import (
+    batches_page,
+    database_page,
+    diagnosis_page,
+    guide_page,
+    individual_page,
+    stress_page,
+)
+
 
 def index() -> rx.Component:
-    return rx.el.main(
-        rx.el.div(
-            rx.el.h1(
-                "Environment is ready...",
-                class_name="text-3xl font-semibold text-gray-800 mb-4",
-            ),
-            rx.el.p(
-                "Keep prompting to build your app!",
-                class_name="text-gray-600 mb-12",
-            ),
-            rx.el.a(
-                rx.el.button(
-                    "View Documentation",
-                    rx.icon("arrow-right", class_name="ml-2", size=16),
-                    class_name="bg-violet-500 text-white px-6 py-3 rounded-lg hover:bg-violet-600 transition-colors flex items-center font-medium",
-                ),
-                href="https://reflex.dev/docs/ai-builder/overview/best-practices/",
-                target="_blank",
-            ),
-            class_name="flex flex-col items-center justify-center text-center min-h-screen",
-        ),
-        class_name="font-['Inter'] bg-white",
+    return clinical_shell(
+        "Tablero clínico",
+        "AmylAI · Centro de operaciones",
+        dashboard_overview(),
     )
 
 
@@ -43,3 +36,9 @@ app = rx.App(
     ],
 )
 app.add_page(index, route="/")
+app.add_page(individual_page, route="/individual")
+app.add_page(diagnosis_page, route="/diagnosis")
+app.add_page(batches_page, route="/batches")
+app.add_page(database_page, route="/database")
+app.add_page(guide_page, route="/guide")
+app.add_page(stress_page, route="/stress")
